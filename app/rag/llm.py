@@ -14,10 +14,12 @@ def generate_answer(question: str, context: str) -> str:
         )
 
     client = get_openai_client()
-    # Use the Responses API (recommended for new projects)
-    response = client.responses.create(
+    # Use chat completions for compatibility across client versions.
+    response = client.chat.completions.create(
         model=settings.openai_model,
-        instructions=SYSTEM_INSTRUCTIONS,
-        input=f"Context:\n{context}\n\nQuestion:\n{question}",
+        messages=[
+            {"role": "system", "content": SYSTEM_INSTRUCTIONS},
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{question}"},
+        ],
     )
-    return response.output_text
+    return response.choices[0].message.content
